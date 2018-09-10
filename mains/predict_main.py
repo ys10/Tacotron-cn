@@ -21,7 +21,10 @@ def predict():
         # create an instance of the model you want
         predict_config.lookup_table = predict_data_gen.lookup_table
         model = Tacotron(predict_config, next_data)
-        with tf.Session() as sess:
+        # session setting
+        session_config = tf.ConfigProto()
+        session_config.gpu_options.allow_growth = True
+        with tf.Session(config=session_config) as sess:
             # create tensor-board logger
             logger = Logger(sess, predict_config)
             # create predictor and pass all the previous components to it

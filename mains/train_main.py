@@ -20,7 +20,10 @@ def train():
         train_config.iter_per_epoch = int(round(train_data_gen.sample_count / train_config.batch_size))
         # create an instance of the model you want
         model = Tacotron(train_config, next_data)
-        with tf.Session() as sess:
+        # session setting
+        session_config = tf.ConfigProto()
+        session_config.gpu_options.allow_growth = True
+        with tf.Session(config=session_config) as sess:
             # create tensor-board logger
             logger = Logger(sess, train_config)
             # create trainer and pass all the previous components to it

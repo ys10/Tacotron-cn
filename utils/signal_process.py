@@ -1,13 +1,14 @@
 # coding=utf-8
 from __future__ import print_function, division
 
+from configs.hyper_params import SignalProcessConfig
 from scipy import signal
 import os
 import numpy as np
 import librosa
 import copy
 import matplotlib.pyplot as plt
-from configs.hyper_params import SignalProcessConfig
+plt.switch_backend('pdf')
 
 config = SignalProcessConfig
 

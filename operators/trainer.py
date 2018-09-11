@@ -31,6 +31,7 @@ class TacotronTrainer(BaseTrain):
                 # plot the first alignments for logging
                 al = self.sess.run(self.model.alignments)
                 plot_alignment(al[0], cur_it, self.config.align_dir)
+        self.model.save(self.sess)
 
     def train_step(self):
         """

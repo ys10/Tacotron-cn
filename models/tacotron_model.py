@@ -80,8 +80,9 @@ class Tacotron(BaseModel):
                     self.loss = self.mel_loss + self.mag_loss
 
                     # Training Scheme
-                    self.global_step = tf.Variable(0, name='global_step', trainable=False)
-                    self.lr = learning_rate_decay(self.config.lr, global_step=self.global_step)
+                    # self.global_step = tf.Variable(0, name='global_step', trainable=False)
+                    # self.lr = learning_rate_decay(self.config.lr, global_step=self.global_step)
+                    self.lr = learning_rate_decay(self.config.lr, global_step=self.global_step_tensor)
                     self.optimizer = tf.train.AdamOptimizer(learning_rate=self.lr)
 
                     # gradient clipping
@@ -90,8 +91,9 @@ class Tacotron(BaseModel):
                     for grad, var in self.gvs:
                         grad = tf.clip_by_norm(grad, 5.)
                         self.clipped.append((grad, var))
-                    self.train_op = self.optimizer.apply_gradients(self.clipped, global_step=self.global_step)
-                    self.train_op = self.optimizer.minimize(self.loss, global_step=self.global_step)
+                    # self.train_op = self.optimizer.apply_gradients(self.clipped, global_step=self.global_step)
+                    # self.train_op = self.optimizer.minimize(self.loss, global_step=self.global_step)
+                    self.train_op = self.optimizer.apply_gradients(self.clipped, global_step=self.global_step_tensor)
             '''build metrics'''
             with tf.name_scope('metrics'):
                 if self.config.mode in ('train', 'eval'):

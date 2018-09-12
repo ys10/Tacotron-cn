@@ -46,7 +46,7 @@ class TrainConfig(EmbdConfig, SignalProcessConfig, ModelConfig):
     is_training = True
     epochs = 100
     lr = 0.001  # Initial learning rate.
-    checkpoint_dir = 'logdir/checkpoints'
+    checkpoint_dir = 'logdir/checkpoints/'
     align_dir = 'logdir/alignments'
     summary_dir = 'logdir/summary'
     batch_size = 32

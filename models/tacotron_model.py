@@ -28,7 +28,9 @@ class Tacotron(BaseModel):
                 self.name = tf.cast(self.data['name'], tf.string)
                 self.text = tf.cast(self.data['text'], tf.float32)
                 self.text_length = tf.cast(self.data['text_length'], tf.int32)
-                self.mel = tf.placeholder(tf.float32, shape=(None, None, self.config.n_mels))
+                self.mel = tf.placeholder(tf.float32, shape=(None,
+                                                             None,
+                                                             self.config.n_mels * self.config.reduction))
                 self.mel_length = None
             '''build graph'''
             # Get encoder/decoder inputs
@@ -45,11 +47,11 @@ class Tacotron(BaseModel):
                 # Encoder
                 # (N, T_x, E)
                 self.encoder_outputs = encoder(self.encoder_inputs,
-                                      embd_size=self.config.embd_size,
-                                      dropout_rate=self.config.dropout_rate,
-                                      num_banks=self.config.encoder_num_banks,
-                                      num_highway_net_blocks=self.config.num_highway_net_blocks,
-                                      is_training=self.config.is_training)
+                                               embd_size=self.config.embd_size,
+                                               dropout_rate=self.config.dropout_rate,
+                                               num_banks=self.config.encoder_num_banks,
+                                               num_highway_net_blocks=self.config.num_highway_net_blocks,
+                                               is_training=self.config.is_training)
                 # Mel decoder
                 # (N, T_y//r, n_mels*r)
                 self.mel_hat, self.alignments = mel_decoder(self.decoder_inputs,
@@ -89,7 +91,7 @@ class Tacotron(BaseModel):
                     self.gvs = self.optimizer.compute_gradients(self.loss)
                     self.clipped = []
                     for grad, var in self.gvs:
-                        grad = tf.clip_by_norm(grad, 5.)
+                        grad = tf.clip_by_norm(grad, 2.)
                         self.clipped.append((grad, var))
                     # self.train_op = self.optimizer.apply_gradients(self.clipped, global_step=self.global_step)
                     # self.train_op = self.optimizer.minimize(self.loss, global_step=self.global_step)

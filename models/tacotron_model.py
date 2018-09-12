@@ -99,24 +99,22 @@ class Tacotron(BaseModel):
                     self.loss = self.mel_loss + self.mag_loss
 
                     # Training Scheme
-                    # self.global_step = tf.Variable(0, name='global_step', trainable=False)
-                    # self.lr = learning_rate_decay(self.config.lr, global_step=self.global_step)
-                    self.lr = learning_rate_decay(self.config.lr, global_step=self.global_step_tensor)
+                    self.lr = tf.Variable(self.config.lr, dtype=tf.float32)
+                    # self.lr = learning_rate_decay(self.config.lr, global_step=self.global_step_tensor)
                     self.optimizer = tf.train.AdamOptimizer(learning_rate=self.lr)
 
                     # gradient clipping
-                    self.gvs = self.optimizer.compute_gradients(self.loss)
-                    self.clipped = []
-                    for grad, var in self.gvs:
-                        grad = tf.clip_by_norm(grad, 2.)
-                        self.clipped.append((grad, var))
-                    # self.train_op = self.optimizer.apply_gradients(self.clipped, global_step=self.global_step)
-                    # self.train_op = self.optimizer.minimize(self.loss, global_step=self.global_step)
-                    self.train_op = self.optimizer.apply_gradients(self.clipped, global_step=self.global_step_tensor)
-            '''build metrics'''
-            with tf.name_scope('metrics'):
-                if self.config.mode in ['train', 'orig_train']:
-                    self.mel_gt = tf.expand_dims(self.mel, -1)
-                    self.mel_hat = tf.expand_dims(self.mel_hat, -1)
-                    self.mag_gt = tf.expand_dims(self.mag, -1)
-                    self.mag_hat = tf.expand_dims(self.mag_hat, -1)
+                    # self.gvs = self.optimizer.compute_gradients(self.loss)
+                    # self.clipped = []
+                    # for grad, var in self.gvs:
+                    #     grad = tf.clip_by_norm(grad, 2.)
+                    #     self.clipped.append((grad, var))
+                    # self.train_op = self.optimizer.apply_gradients(self.clipped, global_step=self.global_step_tensor)
+                    self.train_op = self.optimizer.minimize(self.loss, global_step=self.global_step_tensor)
+            # '''build metrics'''
+            # with tf.name_scope('metrics'):
+            #     if self.config.mode in ['train', 'orig_train']:
+            #         self.mel_gt = tf.expand_dims(self.mel, -1)
+            #         self.mel_hat = tf.expand_dims(self.mel_hat, -1)
+            #         self.mag_gt = tf.expand_dims(self.mag, -1)
+            #         self.mag_hat = tf.expand_dims(self.mag_hat, -1)

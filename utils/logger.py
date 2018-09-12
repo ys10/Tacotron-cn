@@ -9,10 +9,10 @@ class Logger:
         self.config = config
         self.summary_placeholders = {}
         self.summary_ops = {}
-        if self.config.mode == 'train':
+        if self.config.mode in ['train', 'orig_train']:
             self.summary_writer = tf.summary.FileWriter(os.path.join(self.config.summary_dir, 'train'), self.sess.graph)
         else:
-            self.summary_writer = tf.summary.FileWriter(os.path.join(self.config.summary_dir, 'test'))
+            self.summary_writer = tf.summary.FileWriter(os.path.join(self.config.summary_dir, 'predict'))
 
     def summarize(self, step, scope='', summaries_dict=None):
         """

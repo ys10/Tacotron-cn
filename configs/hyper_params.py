@@ -47,7 +47,7 @@ class TrainConfig(EmbdConfig, SignalProcessConfig, ModelConfig):
     epochs = 100
     lr = 0.001  # Initial learning rate.
     checkpoint_dir = 'logdir/orig_checkpoints/'
-    align_dir = 'logdir/alignments'
+    align_dir = 'logdir/orig_alignments'
     summary_dir = 'logdir/orig_summary'
     batch_size = 32
     max_to_keep = 50
@@ -66,10 +66,10 @@ class PredictConfig(EmbdConfig, SignalProcessConfig, ModelConfig):
     mode = 'predict'
     is_training = False
     lr = 0.001  # Initial learning rate.
-    checkpoint_dir = 'logdir/orig_checkpoints/'
+    checkpoint_dir = 'logdir/checkpoints/'
     align_dir = 'logdir/alignments'
     sample_dir = 'logdir/samples'
-    summary_dir = 'logdir/orig_summary'
+    summary_dir = 'logdir/summary'
     batch_size = 5
     max_to_keep = 50
 
@@ -88,8 +88,8 @@ class OrigPredictConfig(EmbdConfig, SignalProcessConfig, ModelConfig):
     is_training = False
     lr = 0.001  # Initial learning rate.
     checkpoint_dir = 'logdir/orig_checkpoints/'
-    align_dir = 'logdir/alignments'
-    sample_dir = 'logdir/samples'
+    align_dir = 'logdir/orig_alignments'
+    sample_dir = 'logdir/orig_samples'
     summary_dir = 'logdir/orig_summary'
     batch_size = 1
     max_to_keep = 50

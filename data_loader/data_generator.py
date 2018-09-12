@@ -4,7 +4,7 @@ import codecs
 import re
 import numpy as np
 from utils.signal_process import load_spectrogram
-from utils.embd_load import EmbdMapper
+from utils.embd_load import EmbdMapper, OrigEmbdMapper
 
 
 def _list2str(temp_list):
@@ -103,4 +103,45 @@ class PredictDataGenerator(object):
             # text length
             text_lengths.append(len(text))
             texts.append(np.array(text, np.int32).tostring())
+        return names, text_lengths, texts, sent_count
+
+
+class OrigPredictDataGenerator(object):
+    def __init__(self, config):
+        self.config = config
+        self.embd_mapper = OrigEmbdMapper(self.config)
+        self.char2idx = self.embd_mapper.get_char2idx()
+        self.lookup_table = self.embd_mapper.get_lookup_table()
+        self.vocab = self.embd_mapper.get_vocab()
+        # load data here
+        self.names, self.text_lengths, self.texts, self.sample_count = self._load_data(self.config)
+
+    def next(self):
+        for idx in range(self.sample_count):
+            # load text
+            name = self.names[idx]
+            text = self.texts[idx]
+            text_length = self.text_lengths[idx]
+            yield {'name': name, 'text': text, 'text_length': text_length}
+
+    def _load_data(self, config):
+        # Parse
+        names, text_lengths, texts = [], [], []
+        test_file_path = os.path.join(config.data_path, config.test_file)
+        lines = codecs.open(test_file_path, 'r', 'utf-8').readlines()[1:]
+        sent_count = len(lines)
+        print('sent_count_{}'.format(sent_count))
+
+        for line in lines:
+            name, text = line.strip().split('|')
+            print('text{}'.format(text))
+            # name
+            names.append(name)
+            # text
+            text = _text_normalize(text, self.vocab, self.config.unk_char)
+            text = [self.char2idx[char] for char in text]
+            print('idx_{}'.format(text))
+            # text length
+            text_lengths.append(len(text))
+            texts.append(text)
         return names, text_lengths, texts, sent_count

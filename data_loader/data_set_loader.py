@@ -46,9 +46,9 @@ def get_data_set_from_generator(generator_func, lookup_table, padded_shapes,
 
     data_set = tf.data.Dataset.from_generator(generator_func,
                                               output_types=output_types)
-    if mode == 'train':  # train
+    if mode in ['train', 'orig_train']:  # train & orig_train
         data_set = data_set.map(parse_train_func)
-    else:  # predict
+    else:  # predict & orig_predict
         data_set = data_set.map(parse_predict_func)
     data_set = data_set.repeat(epochs)
     data_set = data_set.padded_batch(batch_size, padded_shapes=padded_shapes)

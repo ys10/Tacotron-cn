@@ -42,13 +42,13 @@ class TrainConfig(EmbdConfig, SignalProcessConfig, ModelConfig):
     transcription_file = 'transcript.txt'
 
     # training scheme
-    mode = 'train'
+    mode = 'orig_train'
     is_training = True
     epochs = 100
     lr = 0.001  # Initial learning rate.
-    checkpoint_dir = 'logdir/checkpoints/'
+    checkpoint_dir = 'logdir/orig_checkpoints/'
     align_dir = 'logdir/alignments'
-    summary_dir = 'logdir/summary'
+    summary_dir = 'logdir/orig_summary'
     batch_size = 32
     max_to_keep = 50
 
@@ -66,9 +66,30 @@ class PredictConfig(EmbdConfig, SignalProcessConfig, ModelConfig):
     mode = 'predict'
     is_training = False
     lr = 0.001  # Initial learning rate.
-    checkpoint_dir = 'logdir/checkpoints'
+    checkpoint_dir = 'logdir/orig_checkpoints/'
     align_dir = 'logdir/alignments'
     sample_dir = 'logdir/samples'
-    summary_dir = 'logdir/summary'
+    summary_dir = 'logdir/orig_summary'
     batch_size = 5
+    max_to_keep = 50
+
+
+class OrigPredictConfig(EmbdConfig, SignalProcessConfig, ModelConfig):
+    """
+    Predict hyper parameters
+    """
+    # data
+    data_path = 'data/chinese-single-speaker-speech-dataset'
+    test_file = 'test.txt'
+    max_duration = 10.0
+
+    # training scheme
+    mode = 'orig_predict'
+    is_training = False
+    lr = 0.001  # Initial learning rate.
+    checkpoint_dir = 'logdir/orig_checkpoints/'
+    align_dir = 'logdir/alignments'
+    sample_dir = 'logdir/samples'
+    summary_dir = 'logdir/orig_summary'
+    batch_size = 1
     max_to_keep = 50

@@ -173,6 +173,41 @@ def gru(inputs, num_units=None, bidirection=False, scope="gru", reuse=None):
             return outputs
 
 
+def orig_attention_decoder(inputs,
+                           memory,
+                           num_units=None,
+                           n_mels=80,
+                           reduction=1,
+                           scope='attention_decoder',
+                           reuse=None):
+    """
+    Applies a GRU to 'inputs', while attending 'memory'.
+    :param inputs: A 3d tensor with shape of [N, T', C']. Decoder inputs.
+    :param memory: A 3d tensor with shape of [N, T, C]. Outputs of encoder network.
+    :param num_units: An int. Attention size.
+    :param n_mels: An int. Number of Mel banks to generate.
+    :param reduction: An int. Reduction factor. Paper => 2, 3, 5.
+    :param scope: Optional scope for `variable_scope`.
+    :param reuse: Boolean, whether to reuse the weights of a previous layer by the same name.
+    :return: A 3d tensor with shape of [N, T, num_units].
+    """
+    with tf.variable_scope(scope, reuse=reuse):
+        attention_mechanism = BahdanauAttention(num_units, memory)
+        decoder_cell = tf.nn.rnn_cell.GRUCell(num_units)
+        attention_cell = AttentionWrapper(decoder_cell, attention_mechanism, num_units, alignment_history=True)
+        decoder_outputs, final_decoder_state = tf.nn.dynamic_rnn(attention_cell,
+                                                                 inputs, dtype=tf.float32)  # ( N, T', 16)
+        # Decoder RNNs
+        decoder_outputs += gru(decoder_outputs, num_units, bidirection=False,
+                               scope='mel_decoder_gru_1')  # (N, T_y/r, E)
+        decoder_outputs += gru(decoder_outputs, num_units, bidirection=False,
+                               scope='mel_decoder_gru_2')  # (N, T_y/r, E)
+
+        # Outputs => (N, T_y/r, n_mels*r)
+        decoder_outputs = tf.layers.dense(decoder_outputs, n_mels * reduction)
+    return decoder_outputs, final_decoder_state
+
+
 def attention_decoder(inputs,
                       memory,
                       num_units=None,
@@ -200,12 +235,6 @@ def attention_decoder(inputs,
     :return: A 3d tensor with shape of [N, T, num_units].
     """
     with tf.variable_scope(scope, reuse=reuse):
-
-        # attention_mechanism = BahdanauAttention(num_units, memory)
-        # decoder_cell = tf.nn.rnn_cell.GRUCell(num_units)
-        # attention_cell = AttentionWrapper(decoder_cell, attention_mechanism, num_units, alignment_history=True)
-        # decoder_outputs, state = tf.nn.dynamic_rnn(attention_cell, inputs, dtype=tf.float32)  # ( N, T', 16)
-
         # params setting
         if is_training:
             max_iters = None
@@ -216,21 +245,21 @@ def attention_decoder(inputs,
             num_units = inputs.get_shape().as_list()[-1]
 
         # Decoder cell
-        # decoder_cell = tf.nn.rnn_cell.GRUCell(num_units)
+        decoder_cell = tf.nn.rnn_cell.GRUCell(num_units)
 
         # Attention
-        # [N, T_in, attention_depth=256]
+        # [N, T_in, attention_depth]
         attention_cell = AttentionWrapper(
-            tf.nn.rnn_cell.GRUCell(num_units),
+            decoder_cell,
             BahdanauAttention(num_units, memory),
             alignment_history=True)
 
         # Concatenate attention context vector and RNN cell output into a 2*attention_depth=512D vector.
-        # [N, T_in, 2*attention_depth=512]
+        # [N, T_in, 2*attention_depth]
         concat_cell = ConcatOutputAndAttentionWrapper(attention_cell)
 
         # Decoder (layers specified bottom to top):
-        # [N, T_in, decoder_depth=256]
+        # [N, T_in, decoder_depth]
         decoder_cell = MultiRNNCell([
             OutputProjectionWrapper(concat_cell, num_units),
             ResidualWrapper(GRUCell(num_units)),
@@ -239,7 +268,6 @@ def attention_decoder(inputs,
 
         # Project onto r mel spectrogram (predict r outputs at each RNN step):
         output_cell = OutputProjectionWrapper(decoder_cell, n_mels * reduction)
-        # decoder_init_state = output_cell.zero_state(batch_size=batch_size, dtype=tf.float32)
 
         decoder_init_state = output_cell.zero_state(batch_size=batch_size, dtype=tf.float32)
 
@@ -407,6 +435,49 @@ def encoder(inputs,
     return encoder_outputs
 
 
+def orig_mel_decoder(inputs,
+                     memory,
+                     num_unit,
+                     dropout_rate,
+                     n_mels,
+                     reduction,
+                     is_training=True,
+                     scope='mel_decoder',
+                     reuse=None):
+    """
+    :param inputs: A 3d tensor with shape of [N, T_y/r, n_mels(*r)]. Shifted log mel-spectrogram of sound files.
+    :param memory: A 3d tensor with shape of [N, T_x, E].
+    :param num_unit: An int. The dimension of RNN unit.
+    :param dropout_rate: A float. Drop out rate, between 0 and 1.
+    :param n_mels: An int. Number of Mel banks to generate.
+    :param reduction: An int. Reduction factor. Paper => 2, 3, 5.
+    :param is_training: Whether or not the layer is in training mode.
+    :param scope: Optional scope for `variable_scope`.
+    :param reuse: Boolean, whether to reuse the weights of a previous layer by the same name.
+    :return: Predicted log mel-spectrogram tensor with shape of [N, T_y/r, n_mels*r].
+    """
+    with tf.variable_scope(scope, reuse=reuse):
+        # Decoder pre-net
+        inputs = pre_net(inputs, num_unit, dropout_rate, is_training=is_training)  # (N, T_y/r, E/2)
+
+        # Attention RNN
+        decoder_outputs, state = orig_attention_decoder(inputs,
+                                                        memory,
+                                                        num_units=num_unit,
+                                                        n_mels=n_mels,
+                                                        reduction=reduction,
+                                                        )  # (N, T_y/r, num_unit)
+
+        mel_hats = decoder_outputs
+        # Reshape mel
+        # mel_hats = tf.reshape(mel_hats, [batch_size, -1, n_mels])
+
+        # # for attention monitoring
+        alignments = tf.transpose(state.alignment_history.stack(), [1, 2, 0])
+
+    return mel_hats, alignments
+
+
 def mel_decoder(inputs,
                 memory,
                 num_unit,
@@ -447,22 +518,21 @@ def mel_decoder(inputs,
                                                    is_training=is_training
                                                    )  # (N, T_y/r, num_unit)
 
+        decoder_outputs, state = orig_attention_decoder(inputs,
+                                                        memory,
+                                                        num_units=num_unit,
+                                                        n_mels=n_mels,
+                                                        reduction=reduction,
+                                                        )  # (N, T_y/r, num_unit)
+
         mel_hats = decoder_outputs
+        # Reshape mel
         # mel_hats = tf.reshape(mel_hats, [batch_size, -1, n_mels])
-        alignments = tf.transpose(state[0].alignment_history.stack(), [1, 2, 0])
 
         # # for attention monitoring
-        # alignments = tf.transpose(state.alignment_history.stack(), [1, 2, 0])
-        #
-        # # Decoder RNNs
-        # dec += gru(decoder_outputs, num_unit, bidirection=False, scope='mel_decoder_gru_1')  # (N, T_y/r, E)
-        # dec += gru(decoder_outputs, num_unit, bidirection=False, scope='mel_decoder_gru_2')  # (N, T_y/r, E)
-        #
-        # # Outputs => (N, T_y/r, n_mels*r)
-        # mel_hats = tf.layers.dense(dec, n_mels * reduction)
+        alignments = tf.transpose(state[0].alignment_history.stack(), [1, 2, 0])
 
     return mel_hats, alignments
-    # return dec, alignments
 
 
 def mag_decoder(inputs,

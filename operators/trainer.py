@@ -27,7 +27,7 @@ class TacotronTrainer(BaseTrain):
             self.logger.summarize(cur_it, summaries_dict=summaries_dict)
 
             # plot attention alignments
-            if cur_it % 1000 == 0:
+            if cur_it % 100 == 0:
                 # plot the first alignments for logging
                 al = self.sess.run(self.model.alignments)
                 plot_alignment(al[0], cur_it, self.config.align_dir)

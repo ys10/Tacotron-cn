@@ -121,7 +121,7 @@ def plot_alignment(alignment, global_step, align_dir):
     # cbar_ax = fig.add_axes([0.85, 0.15, 0.05, 0.7])
     fig.colorbar(im)
     plt.title('{} Steps'.format(global_step))
-    plt.savefig('{}/alignment_{}k.png'.format(align_dir, global_step//1000), format='png')
+    plt.savefig('{}/alignment_{}h.png'.format(align_dir, global_step//100), format='png')
 
 
 def load_spectrogram(wav_path, reduction):

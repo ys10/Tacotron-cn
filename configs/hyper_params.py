@@ -1,10 +1,20 @@
 # coding=utf-8
 
 
-class EmbdConfig:
-    # embedding
-    embd_path = 'data/embd/sgns.renmin.char.reduce'
+class CNEmbdConfig:
     unk_char = ' '  # replace unknown char with space.
+    # Chinese (embedding needed).
+    language = 'cn'
+    embd_path = 'data/embd/sgns.renmin.char.reduce'
+    embd_size = 300
+
+
+class ENEmbdConfig:
+    unk_char = ' '  # replace unknown char with space.
+    # English (one-hot is OK).
+    language = 'en'
+    embd_path = 'data/embd/en.one.hot'
+    embd_size = 33
 
 
 class SignalProcessConfig:
@@ -25,7 +35,6 @@ class SignalProcessConfig:
 
 class ModelConfig:
     # model
-    embd_size = 300
     encoder_num_banks = 16
     decoder_num_banks = 8
     num_highway_net_blocks = 4
@@ -33,14 +42,13 @@ class ModelConfig:
     dropout_rate = .5
 
 
-class TrainConfig(EmbdConfig, SignalProcessConfig, ModelConfig):
+class CNTrainConfig(CNEmbdConfig, SignalProcessConfig, ModelConfig):
     """
     Training hyper parameters
     """
-    # data
+    # Chinese data
     data_path = 'data/chinese-single-speaker-speech-dataset'
     transcription_file = 'transcript.txt'
-
     # training scheme
     mode = 'orig_train'
     is_training = True
@@ -53,15 +61,32 @@ class TrainConfig(EmbdConfig, SignalProcessConfig, ModelConfig):
     max_to_keep = 50
 
 
-class PredictConfig(EmbdConfig, SignalProcessConfig, ModelConfig):
+class ENTrainConfig(ENEmbdConfig, SignalProcessConfig, ModelConfig):
+    """
+    Training hyper parameters
+    """
+    # English data
+    data_path = 'data/LJSpeech-1.1/'
+    transcription_file = 'metadata.csv'
+    # training scheme
+    mode = 'orig_train'
+    is_training = True
+    epochs = 100
+    lr = 0.001  # Initial learning rate.
+    checkpoint_dir = 'logdir/orig_checkpoints/'
+    align_dir = 'logdir/orig_alignments'
+    summary_dir = 'logdir/orig_summary'
+    batch_size = 32
+    max_to_keep = 50
+
+
+class CNPredictConfig(CNEmbdConfig, SignalProcessConfig, ModelConfig):
     """
     Predict hyper parameters
     """
-    # data
+    # Chinese data
     data_path = 'data/chinese-single-speaker-speech-dataset'
     test_file = 'test.txt'
-    max_duration = 10.0
-
     # training scheme
     mode = 'predict'
     is_training = False
@@ -74,15 +99,51 @@ class PredictConfig(EmbdConfig, SignalProcessConfig, ModelConfig):
     max_to_keep = 50
 
 
-class OrigPredictConfig(EmbdConfig, SignalProcessConfig, ModelConfig):
+class ENPredictConfig(ENEmbdConfig, SignalProcessConfig, ModelConfig):
     """
     Predict hyper parameters
     """
-    # data
+    # English data
+    data_path = 'data/LJSpeech-1.1/'
+    test_file = 'test.txt'
+    # training scheme
+    mode = 'predict'
+    is_training = False
+    lr = 0.001  # Initial learning rate.
+    checkpoint_dir = 'logdir/checkpoints/'
+    align_dir = 'logdir/alignments'
+    sample_dir = 'logdir/samples'
+    summary_dir = 'logdir/summary'
+    batch_size = 5
+    max_to_keep = 50
+
+
+class OrigCNPredictConfig(CNEmbdConfig, SignalProcessConfig, ModelConfig):
+    """
+    Predict hyper parameters
+    """
+    # Chinese data
     data_path = 'data/chinese-single-speaker-speech-dataset'
     test_file = 'test.txt'
-    max_duration = 10.0
+    # training scheme
+    mode = 'orig_predict'
+    is_training = False
+    lr = 0.001  # Initial learning rate.
+    checkpoint_dir = 'logdir/orig_checkpoints/'
+    align_dir = 'logdir/orig_alignments'
+    sample_dir = 'logdir/orig_samples'
+    summary_dir = 'logdir/orig_summary'
+    batch_size = 1
+    max_to_keep = 50
 
+
+class OrigENPredictConfig(ENEmbdConfig, SignalProcessConfig, ModelConfig):
+    """
+    Predict hyper parameters
+    """
+    # English data
+    data_path = 'data/LJSpeech-1.1/'
+    test_file = 'test.txt'
     # training scheme
     mode = 'orig_predict'
     is_training = False

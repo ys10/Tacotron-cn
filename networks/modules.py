@@ -517,14 +517,6 @@ def mel_decoder(inputs,
                                                    reduction=reduction,
                                                    is_training=is_training
                                                    )  # (N, T_y/r, num_unit)
-
-        decoder_outputs, state = orig_attention_decoder(inputs,
-                                                        memory,
-                                                        num_units=num_unit,
-                                                        n_mels=n_mels,
-                                                        reduction=reduction,
-                                                        )  # (N, T_y/r, num_unit)
-
         mel_hats = decoder_outputs
         # Reshape mel
         # mel_hats = tf.reshape(mel_hats, [batch_size, -1, n_mels])

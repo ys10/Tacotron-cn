@@ -1,6 +1,5 @@
 # coding=utf-8
 import numpy as np
-from configs.hyper_params import TrainConfig
 
 
 def list2array(_list):
@@ -137,15 +136,3 @@ class OrigEmbdMapper:
         with open(path, 'w', newline='\n') as f:
             f.writelines(['{} {}\n'.format(self.num, self.dim)])
             f.writelines(embd_list)
-
-
-def main():
-    config = TrainConfig()
-    em = EmbdMapper(config)
-    lookup_table = em.get_lookup_table()
-    print(lookup_table.shape)
-    # em.save('data/embd/sgns.renmin.char.reduce')
-
-
-if __name__ == '__main__':
-    main()

@@ -3,13 +3,13 @@ import tensorflow as tf
 from models.tacotron_model import Tacotron
 from data_loader.data_set_loader import PredictDataSetLoader
 from data_loader.data_generator import PredictDataGenerator
-from configs.hyper_params import PredictConfig
+from configs.hyper_params import ENPredictConfig
 from utils.logger import Logger
 from operators.predictor import TacotronPredictor
 
 
 def predict():
-    predict_config = PredictConfig()
+    predict_config = ENPredictConfig()
     g = tf.Graph()
     with g.as_default():
         # load data

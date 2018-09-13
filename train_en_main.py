@@ -3,13 +3,13 @@ import tensorflow as tf
 from models.tacotron_model import Tacotron
 from data_loader.data_set_loader import TrainDataSetLoader
 from data_loader.data_generator import TrainDataGenerator
-from configs.hyper_params import TrainConfig
+from configs.hyper_params import ENTrainConfig
 from utils.logger import Logger
 from operators.trainer import TacotronTrainer
 
 
 def train():
-    train_config = TrainConfig()
+    train_config = ENTrainConfig()
     g = tf.Graph()
     with g.as_default():
         # load data

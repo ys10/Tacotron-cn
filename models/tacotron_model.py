@@ -99,8 +99,8 @@ class Tacotron(BaseModel):
                     self.loss = self.mel_loss + self.mag_loss
 
                     # Training Scheme
-                    self.lr = tf.Variable(self.config.lr, dtype=tf.float32)
-                    # self.lr = learning_rate_decay(self.config.lr, global_step=self.global_step_tensor)
+                    # self.lr = tf.Variable(self.config.lr, dtype=tf.float32)
+                    self.lr = learning_rate_decay(self.config.lr, global_step=self.global_step_tensor)
                     self.optimizer = tf.train.AdamOptimizer(learning_rate=self.lr)
 
                     # gradient clipping

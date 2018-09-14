@@ -16,15 +16,17 @@ class TacotronTrainer(BaseTrain):
         """
         loop = tqdm(range(self.config.iter_per_epoch))
         for _ in loop:
-            loss, mel_loss, mag_loss, lr = self.train_step()
-            summaries_dict = {
-                'loss': loss,
-                'mel_loss': mel_loss,
-                'mag_loss': mag_loss,
-                'lr': lr,
-            }
+            loss, mel_loss, mag_loss, lr, mel_gt, mel_hat, mag_gt, mag_hat = self.train_step()
             cur_it = self.model.global_step_tensor.eval(self.sess)
-            self.logger.summarize(cur_it, summaries_dict=summaries_dict)
+            self.logger.summarize(cur_it, scope=self.config.mode, summaries_dict={'loss': loss,
+                                                                                  'mel_loss': mel_loss,
+                                                                                  'mag_loss': mag_loss,
+                                                                                  'lr': lr,
+                                                                                  })
+            self.logger.summarize_static_img(scope=self.config.mode, summaries_dict={'mel_gt': mel_gt,
+                                                                                     'mel_hat': mel_hat,
+                                                                                     'mag_gt': mag_gt,
+                                                                                     'mag_hat': mag_hat})
 
             # plot attention alignments
             if cur_it % 100 == 0:
@@ -39,10 +41,14 @@ class TacotronTrainer(BaseTrain):
         - run the tf.Session
         - return any metrics you need to summarize
         """
-        _, loss, mel_loss, mag_loss, lr = self.sess.run([self.model.train_op,
-                                                         self.model.loss,
-                                                         self.model.mel_loss,
-                                                         self.model.mag_loss,
-                                                         self.model.lr,
-                                                         ])
-        return loss, mel_loss, mag_loss, lr
+        _, loss, mel_loss, mag_loss, lr, mel_gt, mel_hat, mag_gt, mag_hat = self.sess.run([self.model.train_op,
+                                                                                           self.model.loss,
+                                                                                           self.model.mel_loss,
+                                                                                           self.model.mag_loss,
+                                                                                           self.model.lr,
+                                                                                           self.model.mel_gt,
+                                                                                           self.model.mel_hat,
+                                                                                           self.model.mag_gt,
+                                                                                           self.model.mag_hat,
+                                                                                           ])
+        return loss, mel_loss, mag_loss, lr, mel_gt, mel_hat, mag_gt, mag_hat

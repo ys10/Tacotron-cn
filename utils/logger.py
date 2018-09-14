@@ -42,3 +42,8 @@ class Logger:
                 for summary in summary_list:
                     self.summary_writer.add_summary(summary, step)
                 self.summary_writer.flush()
+
+    @staticmethod
+    def summarize_static_img(scope='', summaries_dict=None):
+        for tag, value in summaries_dict.items():
+            tf.summary.image("{}/{}".format(scope, tag), value, max_outputs=1)

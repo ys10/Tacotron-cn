@@ -192,7 +192,11 @@ def orig_attention_decoder(inputs,
     :return: A 3d tensor with shape of [N, T, num_units].
     """
     with tf.variable_scope(scope, reuse=reuse):
+        if num_units is None:
+            num_units = inputs.get_shape().as_list[-1]
+
         attention_mechanism = BahdanauAttention(num_units, memory)
+
         decoder_cell = tf.nn.rnn_cell.GRUCell(num_units)
         attention_cell = AttentionWrapper(decoder_cell, attention_mechanism, num_units, alignment_history=True)
         decoder_outputs, final_decoder_state = tf.nn.dynamic_rnn(attention_cell,
@@ -388,10 +392,10 @@ def decoder_cbhg_module(inputs, embd_size, num_banks, n_mels, num_highway_net_bl
 
     # 1D-Convolution projections
     dec = conv1d(dec, filters=embd_size // 2, size=3, scope='conv1d_1')  # (N, T_x, E/2)
-    dec = bn(dec, is_training=is_training, activation_fn=tf.nn.relu, scope='conv1d_1')
+    # dec = bn(dec, is_training=is_training, activation_fn=tf.nn.relu, scope='conv1d_1')
 
     dec = conv1d(dec, filters=n_mels, size=3, scope='conv1d_2')  # (N, T_x, E/2)
-    dec = bn(dec, is_training=is_training, scope='conv1d_2')
+    # dec = bn(dec, is_training=is_training, scope='conv1d_2')
 
     # Extra affine transformation for dimensionality sync
     dec = tf.layers.dense(dec, embd_size // 2)  # (N, T_y, E/2)

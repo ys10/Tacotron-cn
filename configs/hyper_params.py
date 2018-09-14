@@ -54,9 +54,9 @@ class CNTrainConfig(CNEmbdConfig, SignalProcessConfig, ModelConfig):
     is_training = True
     epochs = 100
     lr = 0.001  # Initial learning rate.
-    checkpoint_dir = 'logdir/orig_checkpoints/'
-    align_dir = 'logdir/orig_alignments'
-    summary_dir = 'logdir/orig_summary'
+    checkpoint_dir = 'logdir/cn/orig_checkpoints/'
+    align_dir = 'logdir/cn/orig_alignments'
+    summary_dir = 'logdir/cn/orig_summary'
     batch_size = 32
     max_to_keep = 50
 
@@ -73,9 +73,9 @@ class ENTrainConfig(ENEmbdConfig, SignalProcessConfig, ModelConfig):
     is_training = True
     epochs = 100
     lr = 0.001  # Initial learning rate.
-    checkpoint_dir = 'logdir/orig_checkpoints/'
-    align_dir = 'logdir/orig_alignments'
-    summary_dir = 'logdir/orig_summary'
+    checkpoint_dir = 'logdir/en/orig_checkpoints/'
+    align_dir = 'logdir/en/orig_alignments'
+    summary_dir = 'logdir/en/orig_summary'
     batch_size = 32
     max_to_keep = 50
 
@@ -91,10 +91,10 @@ class CNPredictConfig(CNEmbdConfig, SignalProcessConfig, ModelConfig):
     mode = 'predict'
     is_training = False
     lr = 0.001  # Initial learning rate.
-    checkpoint_dir = 'logdir/checkpoints/'
-    align_dir = 'logdir/alignments'
-    sample_dir = 'logdir/samples'
-    summary_dir = 'logdir/summary'
+    checkpoint_dir = 'logdir/cn/checkpoints/'
+    align_dir = 'logdir/cn/alignments'
+    sample_dir = 'logdir/cn/samples'
+    summary_dir = 'logdir/cn/summary'
     batch_size = 5
     max_to_keep = 50
 
@@ -110,10 +110,10 @@ class ENPredictConfig(ENEmbdConfig, SignalProcessConfig, ModelConfig):
     mode = 'predict'
     is_training = False
     lr = 0.001  # Initial learning rate.
-    checkpoint_dir = 'logdir/checkpoints/'
-    align_dir = 'logdir/alignments'
-    sample_dir = 'logdir/samples'
-    summary_dir = 'logdir/summary'
+    checkpoint_dir = 'logdir/en/checkpoints/'
+    align_dir = 'logdir/en/alignments'
+    sample_dir = 'logdir/en/samples'
+    summary_dir = 'logdir/en/summary'
     batch_size = 5
     max_to_keep = 50
 
@@ -129,10 +129,10 @@ class OrigCNPredictConfig(CNEmbdConfig, SignalProcessConfig, ModelConfig):
     mode = 'orig_predict'
     is_training = False
     lr = 0.001  # Initial learning rate.
-    checkpoint_dir = 'logdir/orig_checkpoints/'
-    align_dir = 'logdir/orig_alignments'
-    sample_dir = 'logdir/orig_samples'
-    summary_dir = 'logdir/orig_summary'
+    checkpoint_dir = 'logdir/cn/orig_checkpoints/'
+    align_dir = 'logdir/cn/orig_alignments'
+    sample_dir = 'logdir/cn/orig_samples'
+    summary_dir = 'logdir/cn/orig_summary'
     batch_size = 1
     max_to_keep = 50
 
@@ -148,9 +148,9 @@ class OrigENPredictConfig(ENEmbdConfig, SignalProcessConfig, ModelConfig):
     mode = 'orig_predict'
     is_training = False
     lr = 0.001  # Initial learning rate.
-    checkpoint_dir = 'logdir/orig_checkpoints/'
-    align_dir = 'logdir/orig_alignments'
-    sample_dir = 'logdir/orig_samples'
-    summary_dir = 'logdir/orig_summary'
+    checkpoint_dir = 'logdir/en/orig_checkpoints/'
+    align_dir = 'logdir/en/orig_alignments'
+    sample_dir = 'logdir/en/orig_samples'
+    summary_dir = 'logdir/en/orig_summary'
     batch_size = 1
     max_to_keep = 50
